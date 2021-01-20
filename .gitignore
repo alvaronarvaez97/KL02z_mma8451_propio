@@ -5,3 +5,7 @@
 
 # Excluye carpeta FreeRTOS_TAD_logs
 /FreeRTOS_TAD_logs/
+# Exclude: Debug and Release temporal folders
+/MKL02Z32xxx4_Project/Debug/
+/MKL02Z32xxx4_Project/Release/
+/MKL02Z32xxx4_Project/doc/
