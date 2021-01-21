@@ -40,6 +40,7 @@
 #include "MKL02Z4.h"
 #include "fsl_debug_console.h"
 #include "sdk_hal_gpio.h"
+#include "sdk_hal_uart0.h"
 /* TODO: insert other include files here. */
 
 /* TODO: insert other definitions and declarations here. */
@@ -49,7 +50,8 @@
  */
 int main(void) {
 
-	status_t resultado;
+	status_t status;
+	uint8_t nuevo_byte_uart;
 
   	/* Init board hardware. */
     BOARD_InitBootPins();
@@ -60,20 +62,41 @@ int main(void) {
     BOARD_InitDebugConsole();
 #endif
 
-    PRINTF("Hello World\n");
+    (void)uart0Inicializar(115200); //iniciliaza uart
 
-    resultado= gpioPutHigh(KPTB6);
-	if (resultado != kStatus_Success)
-		printf("operacion fallida");
+    PRINTF("utilizar teclado para encender los LEDs \r\n");
+    PRINTF("R, r, para control del led rojo \r\n");
+    PRINTF("B, b, para control del led azul \r\n");
+    PRINTF("G, g, para control del led verde \r\n");
+    gpioPutHigh(KPTB7);
+while(1){
+    if(uart0CuantosDatosHayEnBuffer() > 0){
+    	status = uart0LeerByteDesdeBuffer(&nuevo_byte_uart);
+    	if(status==kStatus_Success){
+    		printf("dato: %c \r\n",nuevo_byte_uart);
+    		switch(nuevo_byte_uart){
+    		case 'a':
+    		case 'A':
+    			gpioPutToggle(KPTB10);
+    			break;
 
-    /* Force the counter to be placed into memory. */
-    volatile static int i = 0 ;
-    /* Enter an infinite loop, just incrementing a counter. */
-    while(1) {
-        i++ ;
-        /* 'Dummy' NOP to allow source level single stepping of
-            tight while() loop */
-        __asm volatile ("nop");
+    		case 'b':
+    			gpioPutLow(KPTB7);
+    		case 'B':
+    			gpioPutHigh(KPTB7);
+    		    break;
+
+    		case 'g':
+    			gpioPutValue(KPTB6, 1);
+    		case 'G':
+    			gpioPutValue(KPTB6, 0);
+    			break;
+    		}
+
+    		}else{
+    			printf("proceso fallido \r\n");
+    	}
     }
-    return 0 ;
+    return 0;
+ }
 }
