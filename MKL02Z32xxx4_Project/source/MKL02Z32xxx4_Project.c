@@ -69,34 +69,34 @@ int main(void) {
     PRINTF("B, b, para control del led azul \r\n");
     PRINTF("G, g, para control del led verde \r\n");
     gpioPutHigh(KPTB7);
-while(1){
-    if(uart0CuantosDatosHayEnBuffer() > 0){
-    	status = uart0LeerByteDesdeBuffer(&nuevo_byte_uart);
-    	if(status==kStatus_Success){
-    		printf("dato: %c \r\n",nuevo_byte_uart);
-    		switch(nuevo_byte_uart){
-    		case 'a':
-    		case 'A':
-    			gpioPutToggle(KPTB10);
-    			break;
+	while (1) {
+		if (uart0CuantosDatosHayEnBuffer() > 0) {
+			status = uart0LeerByteDesdeBuffer(&nuevo_byte_uart);
+			if (status == kStatus_Success) {
+				printf("dato: %c \r\n", nuevo_byte_uart);
+				switch (nuevo_byte_uart) {
+						case 'a':
+				case 'A':
+					gpioPutToggle(KPTB10);
+					break;
 
-    		case 'b':
-    			gpioPutLow(KPTB7);
-    		case 'B':
-    			gpioPutHigh(KPTB7);
-    		    break;
+				case 'b':
+					gpioPutLow(KPTB7);
+				case 'B':
+					gpioPutHigh(KPTB7);
+					break;
 
-    		case 'g':
-    			gpioPutValue(KPTB6, 1);
-    		case 'G':
-    			gpioPutValue(KPTB6, 0);
-    			break;
-    		}
+				case 'g':
+					gpioPutValue(KPTB6, 1);
+				case 'G':
+					gpioPutValue(KPTB6, 0);
+					break;
+				}
 
-    		}else{
-    			printf("proceso fallido \r\n");
-    	}
-    }
-    return 0;
- }
+			} else {
+				printf("proceso fallido \r\n");
+			}
+		}
+		return 0;
+	}
 }
