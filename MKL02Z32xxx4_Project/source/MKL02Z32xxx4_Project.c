@@ -79,9 +79,12 @@ int main(void) {
 	uint8_t nuevo_byte_uart;
 	uint8_t nuevo_dato_i2c;
 	uint8_t *dato;
-	//uint16_t valor_eje_x[14];
+	uint8_t nuevo_dato_i2c_2;
+	uint8_t *dato_2;
+	int16_t valor_eje_x;
 
 	dato = &nuevo_dato_i2c;
+	dato_2 = &nuevo_dato_i2c_2;
 
 
   	/* Init board hardware. */
@@ -109,22 +112,24 @@ int main(void) {
 			if (status == kStatus_Success) {
 				printf("dato:%c\r\n", nuevo_byte_uart);
 				switch (nuevo_byte_uart) {
-			    case 'a':
-				case 'A':
-					gpioPutToggle(KPTB10);
+			    case 'A':
+			    	gpioPutValue(KPTB10, 1);
+			    	break;
+				case 'a':
+					gpioPutValue(KPTB10, 0);
 					break;
 
-				case 'b':
-					gpioPutLow(KPTB7);
+				case 'v':
+					gpioPutValue(KPTB7, 0);
 					break;
-				case 'B':
-					gpioPutHigh(KPTB7);
+				case 'V':
+					gpioPutValue(KPTB7, 1);
 					break;
 
-				case 'g':
+				case 'R':
 					gpioPutValue(KPTB6, 1);
 					break;
-				case 'G':
+				case 'r':
 					gpioPutValue(KPTB6, 0);
 					break;
 				case'M':
@@ -135,16 +140,39 @@ int main(void) {
 						printf("MMA8451 error\r\n");
 					break;
 				case 'x':
-					i2c0MasterReadByte(&nuevo_dato_i2c,
-							MMA851_I2C_DEVICE_ADDRESS, 0x01);
-					printf("posicion: %d \r\n", &nuevo_dato_i2c);
-					printf("lectura dato: %d \r\n", *dato);
+					i2c0MasterReadByte(&nuevo_dato_i2c,MMA851_I2C_DEVICE_ADDRESS, 0x01);
+					i2c0MasterReadByte(&nuevo_dato_i2c_2,MMA851_I2C_DEVICE_ADDRESS, 0x02);
+					valor_eje_x = (((int16_t) (*dato << 8))|((int16_t)(*dato_2)));
+					printf("lectura eje X = %d \r\n", valor_eje_x);
 					break;
-				case 'X':
-					i2c0MasterReadByte(&nuevo_dato_i2c,
-					MMA851_I2C_DEVICE_ADDRESS, 0x02);
-					printf("posicion: %d \r\n", &nuevo_dato_i2c);
-					printf("lectura dato: %d \r\n", *dato);
+
+				case 'y':
+					i2c0MasterReadByte(&nuevo_dato_i2c,MMA851_I2C_DEVICE_ADDRESS, 0x03);
+					i2c0MasterReadByte(&nuevo_dato_i2c_2,MMA851_I2C_DEVICE_ADDRESS, 0x04);
+					valor_eje_x = (((int16_t) (*dato << 8))|((int16_t) (*dato_2)));
+					printf("lectura eje Y = %d \r\n", valor_eje_x);
+					break;
+
+				case 'z':
+					i2c0MasterReadByte(&nuevo_dato_i2c,MMA851_I2C_DEVICE_ADDRESS, 0x05);
+					i2c0MasterReadByte(&nuevo_dato_i2c_2,MMA851_I2C_DEVICE_ADDRESS, 0x06);
+					valor_eje_x = (((int16_t) (*dato << 8))|((int16_t) (*dato_2)));
+					printf("lectura eje Z = %d \r\n", valor_eje_x);
+					break;
+
+				case 't':
+					i2c0MasterReadByte(&nuevo_dato_i2c,MMA851_I2C_DEVICE_ADDRESS, 0x01);
+					i2c0MasterReadByte(&nuevo_dato_i2c_2,MMA851_I2C_DEVICE_ADDRESS, 0x02);
+					valor_eje_x = (((int16_t) (*dato << 6))|((int16_t)(*dato_2)));
+					printf("lectura eje X = %d \r\n", valor_eje_x);
+					i2c0MasterReadByte(&nuevo_dato_i2c,MMA851_I2C_DEVICE_ADDRESS, 0x03);
+					i2c0MasterReadByte(&nuevo_dato_i2c_2,MMA851_I2C_DEVICE_ADDRESS, 0x04);
+					valor_eje_x = (((int16_t) (*dato << 6))|((int16_t) (*dato_2)));
+					printf("lectura eje Y = %d \r\n", valor_eje_x);
+					i2c0MasterReadByte(&nuevo_dato_i2c,MMA851_I2C_DEVICE_ADDRESS, 0x05);
+					i2c0MasterReadByte(&nuevo_dato_i2c_2,MMA851_I2C_DEVICE_ADDRESS, 0x06);
+					valor_eje_x = (((int16_t) (*dato << 6))|((int16_t) (*dato_2)));
+					printf("lectura eje Z = %d \r\n", valor_eje_x);
 					break;
 				}
 
@@ -152,6 +180,6 @@ int main(void) {
 				printf("proceso fallido \r\n");
 			}
 		}
-		return 0;
 	}
+	return 0;
 }
