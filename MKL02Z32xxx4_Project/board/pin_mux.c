@@ -32,6 +32,8 @@ void BOARD_InitBootPins(void)
 {
     BOARD_InitPins();
     BOARD_LedsPins();
+    BOARD_i2C0Pins();
+    MMA8451_InitPins();
 }
 
 /* clang-format off */
@@ -127,6 +129,62 @@ void BOARD_LedsPins(void)
 
     /* PORTB7 (pin 2) is configured as PTB7 */
     PORT_SetPinMux(BOARD_LEDSPINS_LED_GREEN_PORT, BOARD_LEDSPINS_LED_GREEN_PIN, kPORT_MuxAsGpio);
+}
+
+/* clang-format off */
+/*
+ * TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+BOARD_i2C0Pins:
+- options: {callFromInitBoot: 'true', coreID: core0, enableClock: 'true'}
+- pin_list:
+  - {pin_num: '24', peripheral: I2C0, signal: SDA, pin_signal: PTB4/IRQ_11/I2C0_SDA/UART0_RX}
+  - {pin_num: '23', peripheral: I2C0, signal: SCL, pin_signal: PTB3/IRQ_10/I2C0_SCL/UART0_TX}
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
+ */
+/* clang-format on */
+
+/* FUNCTION ************************************************************************************************************
+ *
+ * Function Name : BOARD_i2C0Pins
+ * Description   : Configures pin routing and optionally pin electrical features.
+ *
+ * END ****************************************************************************************************************/
+void BOARD_i2C0Pins(void)
+{
+    /* Port B Clock Gate Control: Clock enabled */
+    CLOCK_EnableClock(kCLOCK_PortB);
+
+    /* PORTB3 (pin 23) is configured as I2C0_SCL */
+    PORT_SetPinMux(BOARD_I2C0PINS_ACCEL_SCL_PORT, BOARD_I2C0PINS_ACCEL_SCL_PIN, kPORT_MuxAlt2);
+
+    /* PORTB4 (pin 24) is configured as I2C0_SDA */
+    PORT_SetPinMux(BOARD_I2C0PINS_ACCEL_SDA_PORT, BOARD_I2C0PINS_ACCEL_SDA_PIN, kPORT_MuxAlt2);
+}
+
+/* clang-format off */
+/*
+ * TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+MMA8451_InitPins:
+- options: {callFromInitBoot: 'true', coreID: core0, enableClock: 'true'}
+- pin_list:
+  - {pin_num: '21', peripheral: GPIOA, signal: 'GPIO, 10', pin_signal: PTA10/IRQ_8, pull_select: up}
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
+ */
+/* clang-format on */
+
+/* FUNCTION ************************************************************************************************************
+ *
+ * Function Name : MMA8451_InitPins
+ * Description   : Configures pin routing and optionally pin electrical features.
+ *
+ * END ****************************************************************************************************************/
+void MMA8451_InitPins(void)
+{
+    /* Port A Clock Gate Control: Clock enabled */
+    CLOCK_EnableClock(kCLOCK_PortA);
+
+    /* PORTA10 (pin 21) is configured as PTA10 */
+    PORT_SetPinMux(MMA8451_INITPINS_ACCEL_IRQ_8_PORT, MMA8451_INITPINS_ACCEL_IRQ_8_PIN, kPORT_MuxAsGpio);
 }
 /***********************************************************************************************************************
  * EOF

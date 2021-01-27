@@ -41,17 +41,51 @@
 #include "fsl_debug_console.h"
 #include "sdk_hal_gpio.h"
 #include "sdk_hal_uart0.h"
-/* TODO: insert other include files here. */
+#include "sdk_hal_i2c0.h"
 
-/* TODO: insert other definitions and declarations here. */
+/*******************************************************************************
+ * Definitions
+ ******************************************************************************/
+#define MMA851_I2C_DEVICE_ADDRESS	0x1D
 
-/*
- * @brief   Application entry point.
- */
+#define MMA8451_WHO_AM_I_MEMORY_ADDRESS		0x0D
+
+/*******************************************************************************
+ * Private Prototypes
+ ******************************************************************************/
+
+
+/*******************************************************************************
+ * External vars
+ ******************************************************************************/
+
+
+/*******************************************************************************
+ * Local vars
+ ******************************************************************************/
+
+
+/*******************************************************************************
+ * Private Source Code
+ ******************************************************************************/
+
+
+/*******************************************************************************
+ * Public Source Code
+ ******************************************************************************/
 int main(void) {
 
 	status_t status;
 	uint8_t nuevo_byte_uart;
+	uint8_t nuevo_dato_i2c;
+	uint8_t *dato;
+	uint8_t nuevo_dato_i2c_2;
+	uint8_t *dato_2;
+	int16_t valor_eje_x;
+
+	dato = &nuevo_dato_i2c;
+	dato_2 = &nuevo_dato_i2c_2;
+
 
   	/* Init board hardware. */
     BOARD_InitBootPins();
@@ -63,33 +97,82 @@ int main(void) {
 #endif
 
     (void)uart0Inicializar(115200); //iniciliaza uart
+    (void)i2c0MasterInit(100000);    // inicializa 10Kbps
 
     PRINTF("utilizar teclado para encender los LEDs \r\n");
     PRINTF("R, r, para control del led rojo \r\n");
     PRINTF("B, b, para control del led azul \r\n");
     PRINTF("G, g, para control del led verde \r\n");
-    gpioPutHigh(KPTB7);
+    printf("M para buscar acelerometro \r\n");
+
+
 	while (1) {
 		if (uart0CuantosDatosHayEnBuffer() > 0) {
 			status = uart0LeerByteDesdeBuffer(&nuevo_byte_uart);
 			if (status == kStatus_Success) {
-				printf("dato: %c \r\n", nuevo_byte_uart);
+				printf("dato:%c\r\n", nuevo_byte_uart);
 				switch (nuevo_byte_uart) {
-						case 'a':
-				case 'A':
-					gpioPutToggle(KPTB10);
+			    case 'A':
+			    	gpioPutValue(KPTB10, 1);
+			    	break;
+				case 'a':
+					gpioPutValue(KPTB10, 0);
 					break;
 
-				case 'b':
-					gpioPutLow(KPTB7);
-				case 'B':
-					gpioPutHigh(KPTB7);
+				case 'v':
+					gpioPutValue(KPTB7, 0);
+					break;
+				case 'V':
+					gpioPutValue(KPTB7, 1);
 					break;
 
-				case 'g':
+				case 'R':
 					gpioPutValue(KPTB6, 1);
-				case 'G':
+					break;
+				case 'r':
 					gpioPutValue(KPTB6, 0);
+					break;
+				case'M':
+					i2c0MasterReadByte(&nuevo_dato_i2c, MMA851_I2C_DEVICE_ADDRESS, MMA8451_WHO_AM_I_MEMORY_ADDRESS);
+					if (nuevo_dato_i2c == 0x1A)
+						printf("MMA8451 encontrado!!\r\n");
+					else
+						printf("MMA8451 error\r\n");
+					break;
+				case 'x':
+					i2c0MasterReadByte(&nuevo_dato_i2c,MMA851_I2C_DEVICE_ADDRESS, 0x01);
+					i2c0MasterReadByte(&nuevo_dato_i2c_2,MMA851_I2C_DEVICE_ADDRESS, 0x02);
+					valor_eje_x = (((int16_t) (*dato << 8))|((int16_t)(*dato_2)));
+					printf("lectura eje X = %d \r\n", valor_eje_x);
+					break;
+
+				case 'y':
+					i2c0MasterReadByte(&nuevo_dato_i2c,MMA851_I2C_DEVICE_ADDRESS, 0x03);
+					i2c0MasterReadByte(&nuevo_dato_i2c_2,MMA851_I2C_DEVICE_ADDRESS, 0x04);
+					valor_eje_x = (((int16_t) (*dato << 8))|((int16_t) (*dato_2)));
+					printf("lectura eje Y = %d \r\n", valor_eje_x);
+					break;
+
+				case 'z':
+					i2c0MasterReadByte(&nuevo_dato_i2c,MMA851_I2C_DEVICE_ADDRESS, 0x05);
+					i2c0MasterReadByte(&nuevo_dato_i2c_2,MMA851_I2C_DEVICE_ADDRESS, 0x06);
+					valor_eje_x = (((int16_t) (*dato << 8))|((int16_t) (*dato_2)));
+					printf("lectura eje Z = %d \r\n", valor_eje_x);
+					break;
+
+				case 't':
+					i2c0MasterReadByte(&nuevo_dato_i2c,MMA851_I2C_DEVICE_ADDRESS, 0x01);
+					i2c0MasterReadByte(&nuevo_dato_i2c_2,MMA851_I2C_DEVICE_ADDRESS, 0x02);
+					valor_eje_x = (((int16_t) (*dato << 6))|((int16_t)(*dato_2)));
+					printf("lectura eje X = %d \r\n", valor_eje_x);
+					i2c0MasterReadByte(&nuevo_dato_i2c,MMA851_I2C_DEVICE_ADDRESS, 0x03);
+					i2c0MasterReadByte(&nuevo_dato_i2c_2,MMA851_I2C_DEVICE_ADDRESS, 0x04);
+					valor_eje_x = (((int16_t) (*dato << 6))|((int16_t) (*dato_2)));
+					printf("lectura eje Y = %d \r\n", valor_eje_x);
+					i2c0MasterReadByte(&nuevo_dato_i2c,MMA851_I2C_DEVICE_ADDRESS, 0x05);
+					i2c0MasterReadByte(&nuevo_dato_i2c_2,MMA851_I2C_DEVICE_ADDRESS, 0x06);
+					valor_eje_x = (((int16_t) (*dato << 6))|((int16_t) (*dato_2)));
+					printf("lectura eje Z = %d \r\n", valor_eje_x);
 					break;
 				}
 
@@ -97,6 +180,6 @@ int main(void) {
 				printf("proceso fallido \r\n");
 			}
 		}
-		return 0;
 	}
+	return 0;
 }
